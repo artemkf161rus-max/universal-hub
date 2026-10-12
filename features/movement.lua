@@ -14,7 +14,7 @@ local connections = {}
 -- состояние
 local speedState   = { enabled = false, value = 16, bv = nil, loop = nil }
 local noclipState  = { enabled = false, loop = nil }
-local flyState     = { enabled = false, speed = 50, bv = nil, loop = nil, gyro = nil }
+local flyState     = { enabled = false, speed = 50, bv = nil, loop = nil }
 local jumpState    = { enabled = false, value = 50 }
 local gravityState = { enabled = false, value = 196 }
 
@@ -168,6 +168,77 @@ local function applyGravity()
 end
 
 -- ============================================================
+-- МОБИЛЬНАЯ КНОПКА FLY
+-- ============================================================
+local mobileFlyButton = nil
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+local function createMobileFlyButton()
+	if not isMobile then return end
+
+	local playerGui = player:FindFirstChild("PlayerGui")
+	if not playerGui then return end
+
+	local buttonGui = Instance.new("ScreenGui")
+	buttonGui.Name = "MobileFlyButton"
+	buttonGui.ResetOnSpawn = false
+	buttonGui.IgnoreGuiInset = true
+	buttonGui.DisplayOrder = 100
+	buttonGui.Parent = playerGui
+
+	local btn = Instance.new("TextButton")
+	btn.Name = "FlyBtn"
+	btn.Size = UDim2.new(0, 60, 0, 60)
+	btn.Position = UDim2.new(0, 20, 0.5, -30)
+	btn.BackgroundColor3 = Color3.fromRGB(150, 80, 255)
+	btn.BackgroundTransparency = 0.3
+	btn.BorderSizePixel = 0
+	btn.Text = "✈"
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.TextSize = 28
+	btn.Font = Enum.Font.GothamBold
+	btn.AutoButtonColor = false
+	btn.Parent = buttonGui
+
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(1, 0)
+	c.Parent = btn
+
+	local s = Instance.new("UIStroke")
+	s.Color = Color3.fromRGB(200, 150, 255)
+	s.Thickness = 2
+	s.Parent = btn
+
+	-- отслеживание состояния
+	local stateLabel = Instance.new("TextLabel")
+	stateLabel.Size = UDim2.new(1, 0, 0, 14)
+	stateLabel.Position = UDim2.new(0, 0, 1, 2)
+	stateLabel.BackgroundTransparency = 1
+	stateLabel.Text = "FLY"
+	stateLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	stateLabel.Font = Enum.Font.GothamBold
+	stateLabel.TextSize = 10
+	stateLabel.Parent = btn
+
+	btn.MouseButton1Click:Connect(function()
+		if Hub.Toggles.fly then
+			local state = Hub.Toggles.fly.get()
+			Hub.Toggles.fly.set(not state)
+			-- меняем цвет кнопки
+			if not state then
+				btn.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+				stateLabel.Text = "ON"
+			else
+				btn.BackgroundColor3 = Color3.fromRGB(150, 80, 255)
+				stateLabel.Text = "FLY"
+			end
+		end
+	end)
+
+	mobileFlyButton = buttonGui
+end
+
+-- ============================================================
 -- UI (page 1)
 -- ============================================================
 local function buildUI()
@@ -212,7 +283,12 @@ local function buildUI()
 			flyVal.Text = "Value: " .. flyState.speed
 		end)
 
-	Elements.label(page, "Fly [RightShift]", 142)
+	local flyLabel = "Fly [RightShift]"
+	if isMobile then
+		flyLabel = "Fly [Mobile Button]"
+	end
+
+	Elements.label(page, flyLabel, 142)
 	Hub.Toggles.fly = Elements.switch(page, 140, function(on)
 		flyState.enabled = on
 		if on then applyFly() else cleanupFly() end
@@ -271,7 +347,10 @@ function Movement.init(hub)
 
 	buildUI()
 
-	-- keybind для Fly (RightShift)
+	-- 📱 Мобильная кнопка FLY
+	createMobileFlyButton()
+
+	-- keybind для Fly (RightShift — для ПК)
 	track(UserInputService.InputBegan:Connect(function(input, gpe)
 		if gpe then return end
 		if input.KeyCode == Enum.KeyCode.RightShift then
@@ -304,13 +383,19 @@ function Movement.init(hub)
 
 		workspace.Gravity = 196
 
+		-- удаляем мобильную кнопку
+		if mobileFlyButton and mobileFlyButton.Parent then
+			mobileFlyButton:Destroy()
+		end
+		mobileFlyButton = nil
+
 		for _, c in ipairs(connections) do
 			pcall(function() c:Disconnect() end)
 		end
 		connections = {}
 	end
 
-	print("[MOVEMENT] Модуль инициализирован")
+	print("[MOVEMENT] Модуль инициализирован (mobile:", isMobile, ")")
 	return Movement
 end
 
