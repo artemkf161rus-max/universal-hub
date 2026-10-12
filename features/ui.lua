@@ -29,8 +29,6 @@ function UI.init(Hub)
 		DangerDark    = Color3.fromRGB(120, 20, 20),
 		Success       = Color3.fromRGB(40, 200, 100),
 		SuccessDark   = Color3.fromRGB(20, 130, 60),
-		Info          = Color3.fromRGB(40, 130, 220),
-		InfoDark      = Color3.fromRGB(20, 80, 160),
 		SwitchOff     = Color3.fromRGB(45, 40, 60),
 		SwitchOn      = Color3.fromRGB(150, 80, 255),
 		Divider       = Color3.fromRGB(70, 60, 100),
@@ -65,7 +63,6 @@ function UI.init(Hub)
 		s.Color = color or COLORS.Stroke
 		s.Thickness = thickness or 1.5
 		s.Transparency = transparency or 0
-		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		s.Parent = parent
 		return s
 	end
@@ -350,23 +347,30 @@ function UI.init(Hub)
 	versionLabel.Parent = menu
 
 	-- ============================================================
-	-- PAGES (со ScrollingFrame)
+	-- PAGES — СКРОЛЛ ФИКС (canvas size задаётся явно)
 	-- ============================================================
 	local pages = {}
 	local pagesCount = Hub.Config.PAGES_COUNT or 4
 	local pageNames = { "Movement", "ESP", "Misc", "Players" }
 
+	-- Высоты для каждой страницы (сколько контента)
+	local pageCanvasHeights = {
+		[1] = 340,  -- Movement: Speed+Noclip+Fly+Jump+Gravity = ~300
+		[2] = 300,  -- ESP: RGB+dist+toggles = ~280
+		[3] = 340,  -- Misc: AntiAFK+ChatSpam+FPS+Actions = ~320
+		[4] = 380,  -- Players + Save = ~350
+	}
+
 	for i = 1, pagesCount do
-		-- обёртка страницы (невидимая)
 		local pageFrame = Instance.new("Frame")
 		pageFrame.Name = "Page" .. i
 		pageFrame.Size = UDim2.new(1, 0, 1, -72)
 		pageFrame.Position = UDim2.new(0, 0, 0, 36)
 		pageFrame.BackgroundTransparency = 1
 		pageFrame.Visible = false
+		pageFrame.ClipsDescendants = true
 		pageFrame.Parent = menu
 
-		-- ScrollingFrame для контента
 		local scroll = Instance.new("ScrollingFrame")
 		scroll.Name = "Scroll"
 		scroll.Size = UDim2.new(1, 0, 1, 0)
@@ -375,25 +379,12 @@ function UI.init(Hub)
 		scroll.BorderSizePixel = 0
 		scroll.ScrollBarThickness = 4
 		scroll.ScrollBarImageColor3 = COLORS.ScrollBar
-		scroll.ScrollBarImageTransparency = 0.3
-		scroll.CanvasSize = UDim2.new(0, 0, 0, 0)  -- автоматом
-		scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		scroll.ScrollBarImageTransparency = 0.2
+		-- ⚠️ ФИКС: явный CanvasSize вместо AutomaticCanvasSize
+		scroll.CanvasSize = UDim2.new(0, 0, 0, pageCanvasHeights[i] or 320)
 		scroll.ScrollingDirection = Enum.ScrollingDirection.Y
 		scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 		scroll.Parent = pageFrame
-
-		-- UIListLayout для авто-высоты
-		local listLayout = Instance.new("UIListLayout")
-		listLayout.FillDirection = Enum.FillDirection.Vertical
-		listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		listLayout.Padding = UDim.new(0, 0)
-		listLayout.Parent = scroll
-
-		-- Padding
-		local padding = Instance.new("UIPadding")
-		padding.PaddingTop = UDim.new(0, 4)
-		padding.PaddingBottom = UDim.new(0, 8)
-		padding.Parent = scroll
 
 		pages[i] = scroll
 	end
@@ -444,7 +435,6 @@ function UI.init(Hub)
 		if n < 1 then n = pagesCount end
 		if n > pagesCount then n = 1 end
 		currentPage = n
-		-- скрываем все обёртки
 		for i, scroll in ipairs(pages) do
 			scroll.Parent.Visible = (i == n)
 		end
@@ -454,7 +444,7 @@ function UI.init(Hub)
 	prev.MouseButton1Click:Connect(function() showPage(currentPage - 1) end)
 	next_.MouseButton1Click:Connect(function() showPage(currentPage + 1) end)
 
-	-- свайп для мобилок на нижней панели
+	-- свайп для мобилок по нижней панели
 	local touchStart = nil
 	nav.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.Touch then
