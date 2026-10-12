@@ -11,7 +11,7 @@ function UI.init(Hub)
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 
-	local BASE = "https://raw.githubusercontent.com/artemkf161rus-max/universal-hub/universal-hub/refs/heads/main/"
+	local BASE = "https://raw.githubusercontent.com/artemkf161rus-max/universal-hub/refs/heads/main/"
 
 	-- ==================== ЦВЕТА ====================
 	local COLORS = {
