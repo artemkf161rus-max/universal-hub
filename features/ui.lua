@@ -1,5 +1,5 @@
 -- ============================================================
--- ============  UNIVERSAL HUB — UI  ==========================
+-- ============  UNIVERSAL HUB — UI (COMPACT)  ================
 -- ============================================================
 local UI = {}
 
@@ -47,10 +47,9 @@ function UI.init(Hub)
 	local isLocked = false
 	Hub.IsLocked = function() return isLocked end
 
-	-- ==================== ХЕЛПЕРЫ ====================
 	local function corner(parent, r)
 		local c = Instance.new("UICorner")
-		c.CornerRadius = UDim.new(0, r or 8)
+		c.CornerRadius = UDim.new(0, r or 6)
 		c.Parent = parent
 		return c
 	end
@@ -58,7 +57,7 @@ function UI.init(Hub)
 	local function stroke(parent, color, thickness, transparency)
 		local s = Instance.new("UIStroke")
 		s.Color = color or COLORS.Stroke
-		s.Thickness = thickness or 1.5
+		s.Thickness = thickness or 1
 		s.Transparency = transparency or 0
 		s.Parent = parent
 		return s
@@ -109,20 +108,20 @@ function UI.init(Hub)
 	end
 
 	-- ============================================================
-	-- ELEMENTS
+	-- ELEMENTS (уменьшенные размеры)
 	-- ============================================================
 	local Elements = {}
 
 	function Elements.label(parent, text, y, cfg)
 		cfg = cfg or {}
 		local l = Instance.new("TextLabel")
-		l.Size = UDim2.new(1, -16, 0, 16)
-		l.Position = UDim2.new(0, 8, 0, y)
+		l.Size = UDim2.new(1, -14, 0, 14)
+		l.Position = UDim2.new(0, 7, 0, y)
 		l.BackgroundTransparency = 1
 		l.Text = text
 		l.TextColor3 = cfg.color or COLORS.Text
 		l.Font = cfg.font or FONT_BOLD
-		l.TextSize = cfg.size or 10
+		l.TextSize = cfg.size or 9
 		l.TextXAlignment = Enum.TextXAlignment.Left
 		l.Parent = parent
 		return l
@@ -131,8 +130,8 @@ function UI.init(Hub)
 	function Elements.divider(parent, y)
 		local d = Instance.new("Frame")
 		d.Name = "Divider"
-		d.Size = UDim2.new(1, -16, 0, 1)
-		d.Position = UDim2.new(0, 8, 0, y)
+		d.Size = UDim2.new(1, -14, 0, 1)
+		d.Position = UDim2.new(0, 7, 0, y)
 		d.BackgroundColor3 = COLORS.Divider
 		d.BorderSizePixel = 0
 		d.Parent = parent
@@ -142,8 +141,8 @@ function UI.init(Hub)
 
 	function Elements.switch(parent, y, callback)
 		local bg = Instance.new("TextButton")
-		bg.Size = UDim2.new(0, 36, 0, 18)
-		bg.Position = UDim2.new(1, -44, 0, y - 2)
+		bg.Size = UDim2.new(0, 32, 0, 16)
+		bg.Position = UDim2.new(1, -38, 0, y)
 		bg.BackgroundColor3 = COLORS.SwitchOff
 		bg.BorderSizePixel = 0
 		bg.Text = ""
@@ -152,8 +151,8 @@ function UI.init(Hub)
 		corner(bg, 999)
 
 		local knob = Instance.new("Frame")
-		knob.Size = UDim2.new(0, 12, 0, 12)
-		knob.Position = UDim2.new(0, 3, 0.5, -6)
+		knob.Size = UDim2.new(0, 10, 0, 10)
+		knob.Position = UDim2.new(0, 3, 0.5, -5)
 		knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		knob.BorderSizePixel = 0
 		knob.Parent = bg
@@ -164,7 +163,7 @@ function UI.init(Hub)
 			TweenService:Create(bg, TweenInfo.new(0.2),
 				{BackgroundColor3 = state and COLORS.SwitchOn or COLORS.SwitchOff}):Play()
 			TweenService:Create(knob, TweenInfo.new(0.2),
-				{Position = state and UDim2.new(0, 20, 0.5, -6) or UDim2.new(0, 3, 0.5, -6)}):Play()
+				{Position = state and UDim2.new(0, 19, 0.5, -5) or UDim2.new(0, 3, 0.5, -5)}):Play()
 			if callback then callback(state) end
 		end
 
@@ -183,8 +182,8 @@ function UI.init(Hub)
 
 	function Elements.slider(parent, y, min, max, default, callback)
 		local sb = Instance.new("Frame")
-		sb.Size = UDim2.new(1, -16, 0, 6)
-		sb.Position = UDim2.new(0, 8, 0, y)
+		sb.Size = UDim2.new(1, -14, 0, 5)
+		sb.Position = UDim2.new(0, 7, 0, y)
 		sb.BackgroundColor3 = COLORS.Background2
 		sb.BorderSizePixel = 0
 		sb.Active = true
@@ -200,7 +199,7 @@ function UI.init(Hub)
 		gradient(fill, COLORS.AccentDark, COLORS.Accent, 0)
 
 		local knob = Instance.new("Frame")
-		knob.Size = UDim2.new(0, 12, 0, 12)
+		knob.Size = UDim2.new(0, 10, 0, 10)
 		knob.Position = UDim2.new((default - min) / (max - min), 0, 0.5, 0)
 		knob.AnchorPoint = Vector2.new(0, 0.5)
 		knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -257,61 +256,61 @@ function UI.init(Hub)
 		end
 
 		local b = Instance.new("TextButton")
-		b.Size = UDim2.new(0, width or 70, 0, 26)
+		b.Size = UDim2.new(0, width or 60, 0, 22)
 		b.BackgroundColor3 = color or COLORS.AccentDark
 		b.BorderSizePixel = 0
 		b.Text = text
 		b.TextColor3 = COLORS.TextBright
 		b.Font = FONT_BOLD
-		b.TextSize = 11
+		b.TextSize = 10
 		b.LayoutOrder = order or 0
 		b.AutoButtonColor = false
 		b.Active = true
 		b.Parent = parent
-		corner(b, 6)
+		corner(b, 5)
 		stroke(b, COLORS.Stroke, 1, 0.3)
 		if callback then b.MouseButton1Click:Connect(callback) end
 		return b
 	end
 
 	-- ============================================================
-	-- BUTTON HOLDER
+	-- BUTTON HOLDER (компактный)
 	-- ============================================================
 	local holder = Instance.new("Frame")
-	holder.Size = UDim2.new(0, 240, 0, 30)
-	holder.Position = UDim2.new(0, 15, 0, 15)
+	holder.Size = UDim2.new(0, 200, 0, 24)
+	holder.Position = UDim2.new(0, 12, 0, 12)
 	holder.BackgroundTransparency = 1
 	holder.Active = true
 	holder.Parent = gui
 
 	local holderLayout = Instance.new("UIListLayout")
 	holderLayout.FillDirection = Enum.FillDirection.Horizontal
-	holderLayout.Padding = UDim.new(0, 6)
+	holderLayout.Padding = UDim.new(0, 5)
 	holderLayout.Parent = holder
 
-	local toggleBtn = Elements.button(holder, "Toggle", 1, COLORS.AccentDark, 70)
-	local lockBtn   = Elements.button(holder, "Lock", 2, COLORS.AccentDark, 60)
-	local unloadBtn = Elements.button(holder, "Unload", 3, COLORS.DangerDark, 70)
+	local toggleBtn = Elements.button(holder, "Menu", 1, COLORS.AccentDark, 60)
+	local lockBtn   = Elements.button(holder, "Lock", 2, COLORS.AccentDark, 55)
+	local unloadBtn = Elements.button(holder, "Exit", 3, COLORS.DangerDark, 55)
 
 	-- ============================================================
-	-- MENU FRAME
+	-- MENU FRAME (240×300)
 	-- ============================================================
 	local menu = Instance.new("Frame")
-	menu.Size = UDim2.new(0, 280, 0, 340)
-	menu.Position = UDim2.new(0, 15, 0, 60)
+	menu.Size = UDim2.new(0, 240, 0, 300)
+	menu.Position = UDim2.new(0, 12, 0, 45)
 	menu.BackgroundColor3 = COLORS.Background
 	menu.BorderSizePixel = 0
 	menu.Visible = false
 	menu.Active = true
 	menu.ClipsDescendants = true
 	menu.Parent = gui
-	corner(menu, 10)
-	stroke(menu, COLORS.Accent, 1.5, 0)
+	corner(menu, 8)
+	stroke(menu, COLORS.Accent, 1, 0)
 	gradient(menu, COLORS.Background, COLORS.Background2, 90)
 
 	local topGlow = Instance.new("Frame")
-	topGlow.Size = UDim2.new(1, -20, 0, 2)
-	topGlow.Position = UDim2.new(0, 10, 0, 6)
+	topGlow.Size = UDim2.new(1, -16, 0, 2)
+	topGlow.Position = UDim2.new(0, 8, 0, 4)
 	topGlow.BackgroundColor3 = COLORS.Accent
 	topGlow.BorderSizePixel = 0
 	topGlow.ZIndex = 2
@@ -320,45 +319,44 @@ function UI.init(Hub)
 	gradient(topGlow, COLORS.AccentDark, COLORS.AccentLight, 0)
 
 	local title = Instance.new("TextLabel")
-	title.Size = UDim2.new(1, -20, 0, 18)
-	title.Position = UDim2.new(0, 10, 0, 12)
+	title.Size = UDim2.new(1, -16, 0, 16)
+	title.Position = UDim2.new(0, 8, 0, 9)
 	title.BackgroundTransparency = 1
 	title.Text = "✦ Universal Hub ✦"
 	title.TextColor3 = COLORS.TextBright
 	title.Font = FONT_BOLD
-	title.TextSize = 13
+	title.TextSize = 11
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Parent = menu
 
 	local versionLabel = Instance.new("TextLabel")
-	versionLabel.Size = UDim2.new(0, 60, 0, 14)
-	versionLabel.Position = UDim2.new(1, -70, 0, 13)
+	versionLabel.Size = UDim2.new(0, 50, 0, 12)
+	versionLabel.Position = UDim2.new(1, -58, 0, 10)
 	versionLabel.BackgroundTransparency = 1
 	versionLabel.Text = "v" .. (Hub.Config.HUB_VERSION or "1.0.0")
 	versionLabel.TextColor3 = COLORS.TextDim
 	versionLabel.Font = FONT
-	versionLabel.TextSize = 10
+	versionLabel.TextSize = 9
 	versionLabel.TextXAlignment = Enum.TextXAlignment.Right
 	versionLabel.Parent = menu
 
 	-- ============================================================
-	-- PAGES — по документации Roblox ScrollingFrame
+	-- PAGES
 	-- ============================================================
 	local pages = {}
 	local pagesCount = Hub.Config.PAGES_COUNT or 4
-	local pageNames = { "Movement", "ESP", "Misc", "Players" }
+	local pageNames = { "Move", "ESP", "Misc", "Player" }
 
-	-- ⭐ высота CanvasSize: должна быть > окна, иначе скролл не появится[citation:4]
-	local CANVAS_HEIGHT = 600
+	local CANVAS_HEIGHT = 500
 
 	for i = 1, pagesCount do
 		local pageFrame = Instance.new("Frame")
 		pageFrame.Name = "Page" .. i
-		pageFrame.Size = UDim2.new(1, 0, 1, -72)
-		pageFrame.Position = UDim2.new(0, 0, 0, 36)
+		pageFrame.Size = UDim2.new(1, 0, 1, -56)
+		pageFrame.Position = UDim2.new(0, 0, 0, 28)
 		pageFrame.BackgroundTransparency = 1
 		pageFrame.Visible = false
-		pageFrame.ClipsDescendants = false  -- НЕ обрезаем
+		pageFrame.ClipsDescendants = false
 		pageFrame.Parent = menu
 
 		local scroll = Instance.new("ScrollingFrame")
@@ -367,16 +365,15 @@ function UI.init(Hub)
 		scroll.Position = UDim2.new(0, 0, 0, 0)
 		scroll.BackgroundTransparency = 1
 		scroll.BorderSizePixel = 0
-		scroll.ScrollBarThickness = 6
+		scroll.ScrollBarThickness = 5
 		scroll.ScrollBarImageColor3 = COLORS.ScrollBar
 		scroll.ScrollBarImageTransparency = 0
-		-- ⭐ ЯВНЫЙ CanvasSize — AutomaticCanvasSize не работает с absolute Position[citation:4][citation:19]
 		scroll.CanvasSize = UDim2.new(0, 0, 0, CANVAS_HEIGHT)
-		scroll.ScrollingDirection = Enum.ScrollingDirection.Y  -- только вертикально[citation:4]
-		scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable  -- пружинка на тач[citation:3]
+		scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+		scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 		scroll.Active = true
 		scroll.Selectable = true
-		scroll.ScrollingEnabled = true  -- обязательно[citation:11]
+		scroll.ScrollingEnabled = true
 		scroll.Parent = pageFrame
 
 		pages[i] = scroll
@@ -386,41 +383,41 @@ function UI.init(Hub)
 	-- НАВИГАЦИЯ
 	-- ============================================================
 	local nav = Instance.new("Frame")
-	nav.Size = UDim2.new(1, -16, 0, 26)
-	nav.Position = UDim2.new(0, 8, 1, -32)
+	nav.Size = UDim2.new(1, -12, 0, 20)
+	nav.Position = UDim2.new(0, 6, 1, -24)
 	nav.BackgroundColor3 = COLORS.Background3
 	nav.BorderSizePixel = 0
 	nav.Parent = menu
-	corner(nav, 6)
+	corner(nav, 4)
 
 	local prev = Instance.new("TextButton")
-	prev.Size = UDim2.new(0, 40, 1, 0)
+	prev.Size = UDim2.new(0, 34, 1, 0)
 	prev.BackgroundTransparency = 1
 	prev.Text = "◀"
 	prev.TextColor3 = COLORS.AccentLight
 	prev.Font = FONT_BOLD
-	prev.TextSize = 14
+	prev.TextSize = 12
 	prev.AutoButtonColor = false
 	prev.Parent = nav
 
 	local next_ = Instance.new("TextButton")
-	next_.Size = UDim2.new(0, 40, 1, 0)
-	next_.Position = UDim2.new(1, -40, 0, 0)
+	next_.Size = UDim2.new(0, 34, 1, 0)
+	next_.Position = UDim2.new(1, -34, 0, 0)
 	next_.BackgroundTransparency = 1
 	next_.Text = "▶"
 	next_.TextColor3 = COLORS.AccentLight
 	next_.Font = FONT_BOLD
-	next_.TextSize = 14
+	next_.TextSize = 12
 	next_.AutoButtonColor = false
 	next_.Parent = nav
 
 	local pageLabel = Instance.new("TextLabel")
-	pageLabel.Size = UDim2.new(1, -80, 1, 0)
-	pageLabel.Position = UDim2.new(0, 40, 0, 0)
+	pageLabel.Size = UDim2.new(1, -68, 1, 0)
+	pageLabel.Position = UDim2.new(0, 34, 0, 0)
 	pageLabel.BackgroundTransparency = 1
 	pageLabel.TextColor3 = COLORS.Text
 	pageLabel.Font = FONT_BOLD
-	pageLabel.TextSize = 11
+	pageLabel.TextSize = 10
 	pageLabel.Parent = nav
 
 	local currentPage = 1
@@ -430,7 +427,6 @@ function UI.init(Hub)
 		currentPage = n
 		for i, scroll in ipairs(pages) do
 			scroll.Parent.Visible = (i == n)
-			-- ⭐ сброс скролла при переключении[citation:4]
 			scroll.CanvasPosition = Vector2.new(0, 0)
 		end
 		pageLabel.Text = pageNames[n] .. "  " .. n .. "/" .. pagesCount
@@ -485,7 +481,7 @@ function UI.init(Hub)
 		if open then
 			menu.Position = UDim2.new(
 				holder.Position.X.Scale, holder.Position.X.Offset,
-				holder.Position.Y.Scale, holder.Position.Y.Offset + 36
+				holder.Position.Y.Scale, holder.Position.Y.Offset + 30
 			)
 		end
 	end)
