@@ -4,9 +4,8 @@
 local Players = game:GetService("Players")
 local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- ⚠️ ЗАМЕНИ "ТВОЙ_НИК" НА СВОЙ GITHUB НИК
--- ⚠️ ЗАМЕНИ "universal-hub" НА ИМЯ РЕПО
-local BASE = "https://raw.githubusercontent.com/artemkf161rus-max/universal-hub/universal-hub/refs/heads/main/"
+-- Правильный BASE — БЕЗ двойного universal-hub
+local BASE = "https://raw.githubusercontent.com/artemkf161rus-max/universal-hub/refs/heads/main/"
 
 -- ============================================================
 -- ============  PRE-CLEANUP  =================================
@@ -14,7 +13,6 @@ local BASE = "https://raw.githubusercontent.com/artemkf161rus-max/universal-hub/
 do
 	print("[MAIN] ========== PRE-CLEANUP ==========")
 
-	-- cleanup старых модулей
 	local oldHub = getgenv().Hub
 	if oldHub then
 		if oldHub.Modules then
@@ -28,7 +26,6 @@ do
 			end
 		end
 
-		-- отключаем коннекты
 		if oldHub.Connections then
 			for _, c in ipairs(oldHub.Connections) do
 				pcall(function() c:Disconnect() end)
@@ -36,7 +33,6 @@ do
 			oldHub.Connections = {}
 		end
 
-		-- выключаем тумблеры
 		if oldHub.Toggles then
 			for _, sw in pairs(oldHub.Toggles) do
 				if type(sw) == "table" and sw.set then
@@ -48,7 +44,6 @@ do
 	end
 	getgenv().Hub = nil
 
-	-- удаляем старые GUI
 	local removeNames = {
 		MenuUI = true,
 		HubNotifications = true,
