@@ -7,10 +7,10 @@ function UI.init(Hub)
 	local Players = game:GetService("Players")
 	local TweenService = game:GetService("TweenService")
 	local UserInputService = game:GetService("UserInputService")
-	local RunService = game:GetService("RunService")
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 
+	-- ⚠️ ЗАМЕНИ ЕСЛИ НУЖНО
 	local BASE = "https://raw.githubusercontent.com/artemkf161rus-max/universal-hub/refs/heads/main/"
 
 	-- ==================== ЦВЕТА ====================
@@ -34,6 +34,7 @@ function UI.init(Hub)
 		SwitchOff     = Color3.fromRGB(45, 40, 60),
 		SwitchOn      = Color3.fromRGB(150, 80, 255),
 		Divider       = Color3.fromRGB(70, 60, 100),
+		ScrollBar     = Color3.fromRGB(120, 80, 200),
 	}
 	local FONT_BOLD = Enum.Font.GothamBold
 	local FONT = Enum.Font.Gotham
@@ -121,7 +122,7 @@ function UI.init(Hub)
 	function Elements.label(parent, text, y, cfg)
 		cfg = cfg or {}
 		local l = Instance.new("TextLabel")
-		l.Size = UDim2.new(1, -16, 0, 14)
+		l.Size = UDim2.new(1, -16, 0, 16)
 		l.Position = UDim2.new(0, 8, 0, y)
 		l.BackgroundTransparency = 1
 		l.Text = text
@@ -141,11 +142,7 @@ function UI.init(Hub)
 		d.BackgroundColor3 = COLORS.Divider
 		d.BorderSizePixel = 0
 		d.Parent = parent
-
-		gradient(d,
-			Color3.fromRGB(70, 60, 100),
-			Color3.fromRGB(150, 80, 255),
-			0)
+		gradient(d, Color3.fromRGB(70, 60, 100), COLORS.Accent, 0)
 		return d
 	end
 
@@ -284,7 +281,7 @@ function UI.init(Hub)
 	end
 
 	-- ============================================================
-	-- BUTTON HOLDER (верхние кнопки)
+	-- BUTTON HOLDER
 	-- ============================================================
 	local holder = Instance.new("Frame")
 	holder.Size = UDim2.new(0, 240, 0, 30)
@@ -303,7 +300,7 @@ function UI.init(Hub)
 	local unloadBtn = Elements.button(holder, "Unload", 3, COLORS.DangerDark, 70)
 
 	-- ============================================================
-	-- MENU FRAME (главное окно)
+	-- MENU FRAME
 	-- ============================================================
 	local menu = Instance.new("Frame")
 	menu.Size = UDim2.new(0, 280, 0, 320)
@@ -316,11 +313,9 @@ function UI.init(Hub)
 	menu.Parent = gui
 	corner(menu, 10)
 	stroke(menu, COLORS.Accent, 1.5, 0)
-
-	-- градиент фона меню
 	gradient(menu, COLORS.Background, COLORS.Background2, 90)
 
-	-- светящаяся полоса сверху
+	-- верхняя светящаяся полоса
 	local topGlow = Instance.new("Frame")
 	topGlow.Size = UDim2.new(1, -20, 0, 2)
 	topGlow.Position = UDim2.new(0, 10, 0, 6)
@@ -343,7 +338,6 @@ function UI.init(Hub)
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Parent = menu
 
-	-- версия
 	local versionLabel = Instance.new("TextLabel")
 	versionLabel.Size = UDim2.new(0, 60, 0, 14)
 	versionLabel.Position = UDim2.new(1, -70, 0, 13)
@@ -356,25 +350,56 @@ function UI.init(Hub)
 	versionLabel.Parent = menu
 
 	-- ============================================================
-	-- PAGES
+	-- PAGES (со ScrollingFrame)
 	-- ============================================================
 	local pages = {}
 	local pagesCount = Hub.Config.PAGES_COUNT or 4
 	local pageNames = { "Movement", "ESP", "Misc", "Players" }
 
 	for i = 1, pagesCount do
-		local p = Instance.new("Frame")
-		p.Name = "Page" .. i
-		p.Size = UDim2.new(1, 0, 1, -72)
-		p.Position = UDim2.new(0, 0, 0, 36)
-		p.BackgroundTransparency = 1
-		p.Visible = false
-		p.Parent = menu
-		pages[i] = p
+		-- обёртка страницы (невидимая)
+		local pageFrame = Instance.new("Frame")
+		pageFrame.Name = "Page" .. i
+		pageFrame.Size = UDim2.new(1, 0, 1, -72)
+		pageFrame.Position = UDim2.new(0, 0, 0, 36)
+		pageFrame.BackgroundTransparency = 1
+		pageFrame.Visible = false
+		pageFrame.Parent = menu
+
+		-- ScrollingFrame для контента
+		local scroll = Instance.new("ScrollingFrame")
+		scroll.Name = "Scroll"
+		scroll.Size = UDim2.new(1, 0, 1, 0)
+		scroll.Position = UDim2.new(0, 0, 0, 0)
+		scroll.BackgroundTransparency = 1
+		scroll.BorderSizePixel = 0
+		scroll.ScrollBarThickness = 4
+		scroll.ScrollBarImageColor3 = COLORS.ScrollBar
+		scroll.ScrollBarImageTransparency = 0.3
+		scroll.CanvasSize = UDim2.new(0, 0, 0, 0)  -- автоматом
+		scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+		scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+		scroll.Parent = pageFrame
+
+		-- UIListLayout для авто-высоты
+		local listLayout = Instance.new("UIListLayout")
+		listLayout.FillDirection = Enum.FillDirection.Vertical
+		listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		listLayout.Padding = UDim.new(0, 0)
+		listLayout.Parent = scroll
+
+		-- Padding
+		local padding = Instance.new("UIPadding")
+		padding.PaddingTop = UDim.new(0, 4)
+		padding.PaddingBottom = UDim.new(0, 8)
+		padding.Parent = scroll
+
+		pages[i] = scroll
 	end
 
 	-- ============================================================
-	-- НАВИГАЦИЯ (внизу)
+	-- НАВИГАЦИЯ
 	-- ============================================================
 	local nav = Instance.new("Frame")
 	nav.Size = UDim2.new(1, -16, 0, 26)
@@ -419,11 +444,35 @@ function UI.init(Hub)
 		if n < 1 then n = pagesCount end
 		if n > pagesCount then n = 1 end
 		currentPage = n
-		for i, p in ipairs(pages) do p.Visible = (i == n) end
+		-- скрываем все обёртки
+		for i, scroll in ipairs(pages) do
+			scroll.Parent.Visible = (i == n)
+		end
 		pageLabel.Text = pageNames[n] .. "  " .. n .. "/" .. pagesCount
 	end
+
 	prev.MouseButton1Click:Connect(function() showPage(currentPage - 1) end)
 	next_.MouseButton1Click:Connect(function() showPage(currentPage + 1) end)
+
+	-- свайп для мобилок на нижней панели
+	local touchStart = nil
+	nav.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch then
+			touchStart = input.Position.X
+		end
+	end)
+	nav.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch and touchStart then
+			local delta = input.Position.X - touchStart
+			if delta > 40 then
+				showPage(currentPage - 1)
+			elseif delta < -40 then
+				showPage(currentPage + 1)
+			end
+			touchStart = nil
+		end
+	end)
+
 	showPage(1)
 
 	-- ============================================================
@@ -435,6 +484,7 @@ function UI.init(Hub)
 	Hub.MenuGui = gui
 	Hub.MenuFrame = menu
 	Hub.Pages = pages
+	Hub.ShowPage = showPage
 
 	-- ============================================================
 	-- DRAG & BUTTONS
