@@ -10,7 +10,6 @@ function UI.init(Hub)
 	local player = Players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 
-	-- ⚠️ ЗАМЕНИ ЕСЛИ НУЖНО
 	local BASE = "https://raw.githubusercontent.com/artemkf161rus-max/universal-hub/refs/heads/main/"
 
 	-- ==================== ЦВЕТА ====================
@@ -32,7 +31,7 @@ function UI.init(Hub)
 		SwitchOff     = Color3.fromRGB(45, 40, 60),
 		SwitchOn      = Color3.fromRGB(150, 80, 255),
 		Divider       = Color3.fromRGB(70, 60, 100),
-		ScrollBar     = Color3.fromRGB(120, 80, 200),
+		ScrollBar     = Color3.fromRGB(150, 80, 255),
 	}
 	local FONT_BOLD = Enum.Font.GothamBold
 	local FONT = Enum.Font.Gotham
@@ -300,7 +299,7 @@ function UI.init(Hub)
 	-- MENU FRAME
 	-- ============================================================
 	local menu = Instance.new("Frame")
-	menu.Size = UDim2.new(0, 280, 0, 320)
+	menu.Size = UDim2.new(0, 280, 0, 340)
 	menu.Position = UDim2.new(0, 15, 0, 60)
 	menu.BackgroundColor3 = COLORS.Background
 	menu.BorderSizePixel = 0
@@ -347,19 +346,14 @@ function UI.init(Hub)
 	versionLabel.Parent = menu
 
 	-- ============================================================
-	-- PAGES — СКРОЛЛ ФИКС (canvas size задаётся явно)
+	-- PAGES — БОЛЬШОЙ CanvasSize, СКРОЛЛ РАБОТАЕТ ВЕЗДЕ
 	-- ============================================================
 	local pages = {}
 	local pagesCount = Hub.Config.PAGES_COUNT or 4
 	local pageNames = { "Movement", "ESP", "Misc", "Players" }
 
-	-- Высоты для каждой страницы (сколько контента)
-	local pageCanvasHeights = {
-		[1] = 340,  -- Movement: Speed+Noclip+Fly+Jump+Gravity = ~300
-		[2] = 300,  -- ESP: RGB+dist+toggles = ~280
-		[3] = 340,  -- Misc: AntiAFK+ChatSpam+FPS+Actions = ~320
-		[4] = 380,  -- Players + Save = ~350
-	}
+	-- ⭐ БОЛЬШАЯ высота — скролл будет работать точно
+	local CANVAS_HEIGHT = 600
 
 	for i = 1, pagesCount do
 		local pageFrame = Instance.new("Frame")
@@ -377,11 +371,11 @@ function UI.init(Hub)
 		scroll.Position = UDim2.new(0, 0, 0, 0)
 		scroll.BackgroundTransparency = 1
 		scroll.BorderSizePixel = 0
-		scroll.ScrollBarThickness = 4
+		scroll.ScrollBarThickness = 5
 		scroll.ScrollBarImageColor3 = COLORS.ScrollBar
-		scroll.ScrollBarImageTransparency = 0.2
-		-- ⚠️ ФИКС: явный CanvasSize вместо AutomaticCanvasSize
-		scroll.CanvasSize = UDim2.new(0, 0, 0, pageCanvasHeights[i] or 320)
+		scroll.ScrollBarImageTransparency = 0
+		-- ⭐ БОЛЬШОЙ CanvasSize — скролл всегда доступен
+		scroll.CanvasSize = UDim2.new(0, 0, 0, CANVAS_HEIGHT)
 		scroll.ScrollingDirection = Enum.ScrollingDirection.Y
 		scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
 		scroll.Parent = pageFrame
@@ -444,7 +438,7 @@ function UI.init(Hub)
 	prev.MouseButton1Click:Connect(function() showPage(currentPage - 1) end)
 	next_.MouseButton1Click:Connect(function() showPage(currentPage + 1) end)
 
-	-- свайп для мобилок по нижней панели
+	-- свайп для мобилок
 	local touchStart = nil
 	nav.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.Touch then
