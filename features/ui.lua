@@ -24,9 +24,7 @@ function UI.init(Hub)
 		Text          = Color3.fromRGB(230, 220, 255),
 		TextBright    = Color3.fromRGB(255, 255, 255),
 		TextDim       = Color3.fromRGB(160, 150, 180),
-		Danger        = Color3.fromRGB(200, 40, 40),
 		DangerDark    = Color3.fromRGB(120, 20, 20),
-		Success       = Color3.fromRGB(40, 200, 100),
 		SuccessDark   = Color3.fromRGB(20, 130, 60),
 		SwitchOff     = Color3.fromRGB(45, 40, 60),
 		SwitchOn      = Color3.fromRGB(150, 80, 255),
@@ -311,7 +309,6 @@ function UI.init(Hub)
 	stroke(menu, COLORS.Accent, 1.5, 0)
 	gradient(menu, COLORS.Background, COLORS.Background2, 90)
 
-	-- верхняя светящаяся полоса
 	local topGlow = Instance.new("Frame")
 	topGlow.Size = UDim2.new(1, -20, 0, 2)
 	topGlow.Position = UDim2.new(0, 10, 0, 6)
@@ -322,7 +319,6 @@ function UI.init(Hub)
 	corner(topGlow, 999)
 	gradient(topGlow, COLORS.AccentDark, COLORS.AccentLight, 0)
 
-	-- заголовок
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.new(1, -20, 0, 18)
 	title.Position = UDim2.new(0, 10, 0, 12)
@@ -346,13 +342,13 @@ function UI.init(Hub)
 	versionLabel.Parent = menu
 
 	-- ============================================================
-	-- PAGES — БОЛЬШОЙ CanvasSize, СКРОЛЛ РАБОТАЕТ ВЕЗДЕ
+	-- PAGES — по документации Roblox ScrollingFrame
 	-- ============================================================
 	local pages = {}
 	local pagesCount = Hub.Config.PAGES_COUNT or 4
 	local pageNames = { "Movement", "ESP", "Misc", "Players" }
 
-	-- ⭐ БОЛЬШАЯ высота — скролл будет работать точно
+	-- ⭐ высота CanvasSize: должна быть > окна, иначе скролл не появится[citation:4]
 	local CANVAS_HEIGHT = 600
 
 	for i = 1, pagesCount do
@@ -362,7 +358,7 @@ function UI.init(Hub)
 		pageFrame.Position = UDim2.new(0, 0, 0, 36)
 		pageFrame.BackgroundTransparency = 1
 		pageFrame.Visible = false
-		pageFrame.ClipsDescendants = true
+		pageFrame.ClipsDescendants = false  -- НЕ обрезаем
 		pageFrame.Parent = menu
 
 		local scroll = Instance.new("ScrollingFrame")
@@ -371,13 +367,16 @@ function UI.init(Hub)
 		scroll.Position = UDim2.new(0, 0, 0, 0)
 		scroll.BackgroundTransparency = 1
 		scroll.BorderSizePixel = 0
-		scroll.ScrollBarThickness = 5
+		scroll.ScrollBarThickness = 6
 		scroll.ScrollBarImageColor3 = COLORS.ScrollBar
 		scroll.ScrollBarImageTransparency = 0
-		-- ⭐ БОЛЬШОЙ CanvasSize — скролл всегда доступен
+		-- ⭐ ЯВНЫЙ CanvasSize — AutomaticCanvasSize не работает с absolute Position[citation:4][citation:19]
 		scroll.CanvasSize = UDim2.new(0, 0, 0, CANVAS_HEIGHT)
-		scroll.ScrollingDirection = Enum.ScrollingDirection.Y
-		scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable
+		scroll.ScrollingDirection = Enum.ScrollingDirection.Y  -- только вертикально[citation:4]
+		scroll.ElasticBehavior = Enum.ElasticBehavior.WhenScrollable  -- пружинка на тач[citation:3]
+		scroll.Active = true
+		scroll.Selectable = true
+		scroll.ScrollingEnabled = true  -- обязательно[citation:11]
 		scroll.Parent = pageFrame
 
 		pages[i] = scroll
@@ -431,6 +430,8 @@ function UI.init(Hub)
 		currentPage = n
 		for i, scroll in ipairs(pages) do
 			scroll.Parent.Visible = (i == n)
+			-- ⭐ сброс скролла при переключении[citation:4]
+			scroll.CanvasPosition = Vector2.new(0, 0)
 		end
 		pageLabel.Text = pageNames[n] .. "  " .. n .. "/" .. pagesCount
 	end
@@ -438,7 +439,6 @@ function UI.init(Hub)
 	prev.MouseButton1Click:Connect(function() showPage(currentPage - 1) end)
 	next_.MouseButton1Click:Connect(function() showPage(currentPage + 1) end)
 
-	-- свайп для мобилок
 	local touchStart = nil
 	nav.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.Touch then
